@@ -153,6 +153,3 @@ struct EVChargingView: View {
     }
 }
 
-
-
-//ggewdgigkfwekudhygiyweftyidgiwegftdy
