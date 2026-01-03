@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import Combine
+import AudioToolbox
 
 final class QRScannerViewModel: NSObject,
                                 ObservableObject,
@@ -11,6 +12,8 @@ final class QRScannerViewModel: NSObject,
 
     @Published var isFlashOn = false
     @Published var scanLineY: CGFloat = -110
+    @Published var showSuccess = false
+    @Published var scannedCode: String?
 
     // MARK: - Private
     private let sessionQueue = DispatchQueue(label: "qr.camera.session.queue")
@@ -26,7 +29,7 @@ final class QRScannerViewModel: NSObject,
         monitorBrightness()
     }
 
-    // MARK: - Camera Setup (BACKGROUND THREAD)
+    // MARK: - Camera Setup (BACKGROUND)
     private func configureSession() {
         session.beginConfiguration()
 
@@ -53,7 +56,7 @@ final class QRScannerViewModel: NSObject,
         session.commitConfiguration()
     }
 
-    // MARK: - Start / Stop (BACKGROUND THREAD)
+    // MARK: - Start / Stop
     func startScanning() {
         sessionQueue.async { [weak self] in
             guard let self = self, !self.session.isRunning else { return }
@@ -72,7 +75,7 @@ final class QRScannerViewModel: NSObject,
         }
     }
 
-    // MARK: - Flash (SAFE)
+    // MARK: - Flash
     func toggleFlash() {
         guard let device = videoDevice, device.hasTorch else { return }
 
@@ -91,7 +94,7 @@ final class QRScannerViewModel: NSObject,
         }
     }
 
-    // MARK: - Auto Flash (iOS 26 Safe)
+    // MARK: - Auto Flash (Low Light)
     private func currentScreenBrightness() -> CGFloat {
         guard let scene = UIApplication.shared.connectedScenes
                 .first as? UIWindowScene else { return 1.0 }
@@ -127,17 +130,39 @@ final class QRScannerViewModel: NSObject,
         }
     }
 
-    // MARK: - QR Result (HOOK FOR LATER)
+    // MARK: - QR Detection
     func metadataOutput(
-        _ output: AVCaptureMetadataOutput,
+       ighth Output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
         from connection: AVCaptureConnection
     ) {
-        if let object = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
-           let value = object.stringValue {
+        guard
+            let object = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
+            let value = object.stringValue,
+            !showSuccess
+        else { return }
 
-            print("Scanned QR:", value)
-            // 🚦 Route to EV / WiFi later
+        scannedCode = value
+        triggerSuccess()
+    }
+
+    // MARK: - Success Feedback
+    private func triggerSuccess() {
+        stopScanning()
+
+        DispatchQueue.main.async {
+            self.showSuccess = true
+
+            // 🔔 Haptic
+            let feedback = UINotificationFeedbackGenerator()
+            feedback.notificationOccurred(.success)
+
+            // 🔊 System success sound
+            AudioServicesPlaySystemSound(1057)
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            self.showSuccess = false
         }
     }
 }
