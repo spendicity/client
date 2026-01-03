@@ -30,7 +30,12 @@ struct UsageSettlementView: View {
                 spacing: 16
             ) {
                 ForEach(items) { item in
-                    BillIcon(item: item)
+                    NavigationLink {
+                        UsageSettlementRouter.destinationView(for: item)
+                    } label: {
+                        BillIcon(item: item)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }

@@ -6,67 +6,88 @@ final class QRScannerViewModel: NSObject,
                                 ObservableObject,
                                 AVCaptureMetadataOutputObjectsDelegate {
 
+    // MARK: - Public
     let session = AVCaptureSession()
 
     @Published var isFlashOn = false
     @Published var scanLineY: CGFloat = -110
 
+    // MARK: - Private
+    private let sessionQueue = DispatchQueue(label: "qr.camera.session.queue")
     private var videoDevice: AVCaptureDevice?
 
     override init() {
         super.init()
-        configureSession()
+
+        sessionQueue.async { [weak self] in
+            self?.configureSession()
+        }
+
         monitorBrightness()
     }
 
-    // MARK: - Camera Setup
+    // MARK: - Camera Setup (BACKGROUND THREAD)
     private func configureSession() {
+        session.beginConfiguration()
+
         guard let device = AVCaptureDevice.default(for: .video),
-              let input = try? AVCaptureDeviceInput(device: device) else { return }
+              let input = try? AVCaptureDeviceInput(device: device) else {
+            session.commitConfiguration()
+            return
+        }
 
         videoDevice = device
 
         let output = AVCaptureMetadataOutput()
         output.setMetadataObjectsDelegate(self, queue: .main)
 
-        session.beginConfiguration()
-
         if session.canAddInput(input) {
             session.addInput(input)
         }
+
         if session.canAddOutput(output) {
             session.addOutput(output)
+            output.metadataObjectTypes = [.qr]
         }
 
-        output.metadataObjectTypes = [.qr]
         session.commitConfiguration()
     }
 
-    // MARK: - Start / Stop
+    // MARK: - Start / Stop (BACKGROUND THREAD)
     func startScanning() {
-        if !session.isRunning {
-            session.startRunning()
-            scanLineY = 110
+        sessionQueue.async { [weak self] in
+            guard let self = self, !self.session.isRunning else { return }
+            self.session.startRunning()
+
+            DispatchQueue.main.async {
+                self.scanLineY = 110
+            }
         }
     }
 
     func stopScanning() {
-        if session.isRunning {
-            session.stopRunning()
+        sessionQueue.async { [weak self] in
+            guard let self = self, self.session.isRunning else { return }
+            self.session.stopRunning()
         }
     }
 
-    // MARK: - Flash
+    // MARK: - Flash (SAFE)
     func toggleFlash() {
         guard let device = videoDevice, device.hasTorch else { return }
 
-        do {
-            try device.lockForConfiguration()
-            device.torchMode = isFlashOn ? .off : .on
-            device.unlockForConfiguration()
-            isFlashOn.toggle()
-        } catch {
-            print("Flash error")
+        sessionQueue.async {
+            do {
+                try device.lockForConfiguration()
+                device.torchMode = self.isFlashOn ? .off : .on
+                device.unlockForConfiguration()
+
+                DispatchQueue.main.async {
+                    self.isFlashOn.toggle()
+                }
+            } catch {
+                print("Flash error")
+            }
         }
     }
 
@@ -82,7 +103,8 @@ final class QRScannerViewModel: NSObject,
             forName: UIScreen.brightnessDidChangeNotification,
             object: nil,
             queue: .main
-        ) { _ in
+        ) { [weak self] _ in
+            guard let self = self else { return }
             if self.currentScreenBrightness() < 0.2 {
                 self.enableFlashIfNeeded()
             }
@@ -94,13 +116,18 @@ final class QRScannerViewModel: NSObject,
               device.hasTorch,
               !isFlashOn else { return }
 
-        try? device.lockForConfiguration()
-        device.torchMode = .on
-        device.unlockForConfiguration()
-        isFlashOn = true
+        sessionQueue.async {
+            try? device.lockForConfiguration()
+            device.torchMode = .on
+            device.unlockForConfiguration()
+
+            DispatchQueue.main.async {
+                self.isFlashOn = true
+            }
+        }
     }
 
-    // MARK: - QR Result (Hook later)
+    // MARK: - QR Result (HOOK FOR LATER)
     func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
@@ -108,8 +135,9 @@ final class QRScannerViewModel: NSObject,
     ) {
         if let object = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
            let value = object.stringValue {
+
             print("Scanned QR:", value)
-            // Route to utility later
+            // 🚦 Route to EV / WiFi later
         }
     }
 }
