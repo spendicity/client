@@ -96,7 +96,7 @@ struct HomeView: View {
                     )
                     .foregroundColor(AppColors.textOnDark)
                     .padding(10)
-                    .background(Color.white.opacity(0.15))
+                    .background(Color.green.opacity(0.15))
                     .clipShape(Circle())
             }
 
