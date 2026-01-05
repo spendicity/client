@@ -8,7 +8,7 @@ struct ActionIcon: View {
         VStack(spacing: 8) {
 
             Circle()
-                .fill(Color.purple)
+                .fill(Color.green)
                 .frame(width: 56, height: 56)
                 .overlay(
                     Image(systemName: item.icon)
