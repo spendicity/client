@@ -91,8 +91,8 @@ struct HomeView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(
-                        width: 36 - (8 * progress),
-                        height: 36 - (8 * progress)
+                        width: 26 - (8 * progress),
+                        height: 26 - (8 * progress)
                     )
                     .foregroundColor(AppColors.textOnDark)
                     .padding(10)
@@ -110,7 +110,7 @@ struct HomeView: View {
                     .font(.system(size: 18))
                     .foregroundColor(AppColors.textOnDark)
                     .padding(10)
-                    .background(Color.white.opacity(0.15))
+                    .background(Color.green.opacity(0.15))
                     .clipShape(Circle())
             }
         }
