@@ -28,6 +28,7 @@ struct BalanceCard: View {
                 }
             }
 
+            // BALANCE
             Text("₹ 152.40")
                 .font(.system(size: 36, weight: .bold))
                 .foregroundColor(AppColors.textOnDark)
@@ -35,6 +36,33 @@ struct BalanceCard: View {
             Text("Streaming payments ready")
                 .font(.caption)
                 .foregroundColor(AppColors.textMutedOnDark)
+
+            // 🔹 PAYMENT ACTION
+            HStack {
+                Button {
+                    // 🚀 Payment action (API later)
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "paperplane.fill")
+                            .font(.system(size: 12))
+
+                        Text("Pay")
+                            .font(.caption.bold())
+                    }
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(AppColors.positive)
+                    .cornerRadius(10)
+                }
+
+                Spacer()
+
+                Text("UPI • Cards • Wallet")
+                    .font(.caption2)
+                    .foregroundColor(AppColors.textMutedOnDark)
+            }
+            .padding(.top, 4)
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -44,7 +72,7 @@ struct BalanceCard: View {
         )
         .cornerRadius(22)
 
-        // ✅ PERFECTLY SMOOTH MOVING BORDER
+        // ✅ NEON BORDER
         .overlay(
             RoundedRectangle(cornerRadius: 22)
                 .trim(from: start, to: end)
