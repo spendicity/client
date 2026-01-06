@@ -60,7 +60,7 @@ struct HomeView: View {
                             .background(AppColors.cardWhite)
                             .cornerRadius(24)
                         // 🤍 CORE METRIC CARD
-                        BalanceCard()
+                        AdvertisementView()
                             .background(AppColors.cardWhite)
                             .cornerRadius(24)
 
