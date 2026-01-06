@@ -37,8 +37,8 @@ struct StreamingUtilitiesView: View {
             PublicWiFiView()
         case "Smart Parking":
             SmartParkingView()
-        case "Work Pods":
-            WorkPodsView()
+        case "GYM":
+            GYMView()
         default:
             EmptyView()
         }

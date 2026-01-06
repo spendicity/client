@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WorkPodsView: View {
+struct GYMView: View {
 
     var body: some View {
         ZStack {
@@ -11,37 +11,37 @@ struct WorkPodsView: View {
                 VStack(spacing: 28) {
 
                     VStack(spacing: 10) {
-                        Image("WorkPod")
-                            .resizable()
-                            .scaledToFit()
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 56, weight: .bold))
+                            .foregroundColor(AppColors.positive)
                             .frame(width: 64, height: 64)
 
-                        Text("Work Pods")
+                        Text("Gym")
                             .font(.largeTitle.bold())
                             .foregroundColor(AppColors.textOnDark)
 
-                        Text("Book & pay for private workspaces")
+                        Text("Book & pay for gym sessions")
                             .font(.caption)
                             .foregroundColor(AppColors.textMutedOnDark)
                     }
                     .padding(.top, 20)
 
                     VStack(spacing: 16) {
-                        actionCard("qrcode.viewfinder", "Scan Pod QR", "Scan QR at work pod")
-                        actionCard("briefcase.fill", "Pay for Work Pod", "Pay by time used")
-                        actionCard("clock.arrow.circlepath", "Usage History", "View past bookings")
+                        actionCard("qrcode.viewfinder", "Scan Gym QR", "Scan QR at the gym")
+                        actionCard("creditcard.fill", "Pay for Gym Session", "Pay per visit or time used")
+                        actionCard("clock.arrow.circlepath", "Usage History", "View past visits")
                     }
 
-                    section("Work Pod Services") {
-                        utilityRow("Nearby Work Pods", "Find pods near you")
-                        utilityRow("Available Pods", "Check pod availability")
-                        utilityRow("Pricing", "Hourly & daily rates")
+                    section("Gym Services") {
+                        utilityRow("Nearby Gyms", "Find gyms near you")
+                        utilityRow("Available Equipment", "Check machine availability")
+                        utilityRow("Membership & Pricing", "Plans and day rates")
                     }
 
                     infoBox("""
-• Quiet & private workspaces
-• Pay only for time used
-• Secure & monitored pods
+• Access with QR code
+• Pay per session or membership
+• Track visits and usage
 """)
 
                     Spacer(minLength: 40)
@@ -49,7 +49,7 @@ struct WorkPodsView: View {
                 .padding()
             }
         }
-        .navigationTitle("Work Pods")
+        .navigationTitle("Gym")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -95,7 +95,7 @@ struct WorkPodsView: View {
 
     private func infoBox(_ text: String) -> some View {
         VStack(alignment: .leading) {
-            Text("How Work Pods work")
+            Text("How the Gym works")
                 .font(.headline)
                 .foregroundColor(AppColors.textOnDark)
             Text(text)

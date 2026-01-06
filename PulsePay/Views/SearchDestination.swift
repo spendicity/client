@@ -42,7 +42,7 @@ enum SearchDestination: String, CaseIterable, Identifiable {
         case .smartParking:
             SmartParkingView()
         case .workPods:
-            WorkPodsView()
+            GYMView()
 
         // Usage & Settlement
         case .liveUsage:
